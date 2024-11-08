@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+import { getDatabase, ref, get, child, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 const firebaseConfig = {
     apiKey: "AIzaSyD5SBki4V8LQZXjp7C3DsEiBYdacEsp4Fo",
     authDomain: "quizproject-25be9.firebaseapp.com",
@@ -174,7 +174,6 @@ const firebaseConfig = {
             answer: []
           };
         }
-        //switch case for buutons 
         switch (true) {
           case indexQuestion < questions.length:
             questionTitle.textContent = questions[indexQuestion].question;
@@ -216,12 +215,25 @@ const firebaseConfig = {
       sendButton.onclick = () => {
         const phoneInput = document.getElementById('phoneNumber');
         if (phoneInput) {
-          phoneNumber = phoneInput.value;
+            phoneNumber = phoneInput.value;
         }
-        renderResults();
-        modalBlock.classList.remove('d-block');
-        burgerBtn.classList.remove('active');
-      };
+    
+        const resultsData = {
+            phoneNumber: phoneNumber,
+            answers: selectedAnswers
+        };
+    
+        set(ref(database, 'results/' + Date.now()), resultsData)
+            .then(() => {
+                console.log("Results saved successfully.");
+                renderResults(); 
+                modalBlock.classList.remove('d-block');
+                burgerBtn.classList.remove('active');
+            })
+            .catch((error) => {
+                console.error("Error saving results: ", error);
+            });
+    };
     };
   
     const renderResults = () => {
